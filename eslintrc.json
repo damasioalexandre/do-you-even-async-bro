@@ -1,0 +1,42 @@
+{
+  "env": {
+    "browser": false,
+    "node": true,
+    "es6": true,
+    "mocha": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "script"
+  },
+  "plugins": [
+    "node",
+    "prettier"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:prettier/recommended",
+    "plugin:node/recommended"
+  ],
+  "rules": {
+    "no-console": [
+      "off"
+    ],
+    "node/exports-style": [
+      "error",
+      "module.exports"
+    ],
+    "strict": [
+      "error",
+      "global"
+    ],
+    "prettier/prettier": [
+      "error",
+      {
+        "singleQuote": true,
+        "tabWidth": 2,
+        "printWidth": 80
+      }
+    ]
+  }
+}
