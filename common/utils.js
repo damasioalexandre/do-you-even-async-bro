@@ -26,7 +26,7 @@ function getDataSet(data, callback) {
       createdDate: 1,
       propensityToBuy: 1
     })
-    .limit(500)
+    .limit(100000)
     .toArray((err, results) => {
       data.dataSet = results;
       return callback(err, data);
@@ -44,8 +44,11 @@ function logRunTimes(data) {
   });
 }
 
-function recordRunTime(data, time, alias) {
-  data.runTimes.push({ alias, executionTime: getRunDuration(time) });
+function recordRunTime(data, time, alias, unitOfTime) {
+  data.runTimes.push({
+    alias,
+    executionTime: getRunDuration(time, unitOfTime)
+  });
 }
 
 function kill() {
@@ -63,8 +66,8 @@ function getAverageRunTime(data, loopName, callback) {
       return runTime.executionTime;
     }
   });
-
-  return callback(null, total / loopRunTimes.length);
+  const runTime = total / loopRunTimes.length;
+  return callback(null, runTime);
 }
 
 module.exports = {
@@ -73,5 +76,6 @@ module.exports = {
   logRunTimes,
   recordRunTime,
   kill,
-  getAverageRunTime
+  getAverageRunTime,
+  getRunDuration
 };

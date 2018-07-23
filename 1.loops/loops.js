@@ -7,7 +7,8 @@ const {
   connect,
   getDataSet,
   kill,
-  getAverageRunTime
+  getAverageRunTime,
+  getRunDuration
 } = require('../common/utils');
 const start = moment();
 const loopNames = {
@@ -16,6 +17,7 @@ const loopNames = {
   cachedLengthForLoop: 'cachedLengthForLoop',
   asyncEach: 'asyncEach'
 };
+const unitOfTime = 'ms';
 const runs = 36;
 run();
 
@@ -53,6 +55,7 @@ function workComplete(err, data) {
     },
     (err, results) => {
       console.log(results);
+      console.log(`total run time ${getRunDuration(start, unitOfTime)}`);
       kill();
     }
   );
@@ -78,7 +81,7 @@ function basicForLoop(data, callback) {
     doWork(dataSet[i]);
   }
 
-  recordRunTime(data, now, loopNames.basicForLoop);
+  recordRunTime(data, now, loopNames.basicForLoop, unitOfTime);
 
   return callback(null, data);
 }
@@ -91,7 +94,7 @@ function reverseForLoop(data, callback) {
     doWork(dataSet[i]);
   }
 
-  recordRunTime(data, now, loopNames.reverseForLoop);
+  recordRunTime(data, now, loopNames.reverseForLoop, unitOfTime);
 
   return callback(null, data);
 }
@@ -105,7 +108,7 @@ function cachedLengthForLoop(data, callback) {
     doWork(dataSet[i]);
   }
 
-  recordRunTime(data, now, loopNames.cachedLengthForLoop);
+  recordRunTime(data, now, loopNames.cachedLengthForLoop, unitOfTime);
 
   return callback(null, data);
 }
@@ -116,7 +119,7 @@ function asyncEach(data, callback) {
 
   async.each(dataSet, processRecord, err => {
     if (err) return callback(err);
-    recordRunTime(data, now, loopNames.asyncEach);
+    recordRunTime(data, now, loopNames.asyncEach, unitOfTime);
     return callback(null, data);
   });
 
