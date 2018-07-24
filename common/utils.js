@@ -26,7 +26,7 @@ function getDataSet(data, callback) {
       createdDate: 1,
       propensityToBuy: 1
     })
-    .limit(10000)
+    .limit(100000)
     .toArray((err, results) => {
       data.dataSet = results;
       return callback(err, data);
@@ -47,6 +47,35 @@ function doWork(statusFlowLog) {
   }
 
   statusFlowLog.math = Math.floor(Math.random() + 0.22) % 9;
+}
+
+function doAsyncWork(data, callback) {
+  const { statusFlowLog, db } = data;
+  statusFlowLog.customerName = 'Alex';
+  statusFlowLog.createdDate = moment()
+    .add(2, 'hours')
+    .add(2, 'hours')
+    .add(2, 'hours')
+    .subtract(2, 'hours')
+    .subtract(2, 'hours')
+    .subtract(2, 'hours');
+  if (statusFlowLog.customerName === 'Alex') {
+    statusFlowLog.customerName = 'Pew';
+  }
+
+  statusFlowLog.math = Math.floor(Math.random() + 0.22) % 9;
+
+  const update = {
+    customerName: statusFlowLog.customerName,
+    createdDate: statusFlowLog.createdDate,
+    math: statusFlowLog.math
+  };
+
+  db.collection('statusFlowLogs').findOneAndUpdate(
+    { _id: statusFlowLog._id },
+    update,
+    callback
+  );
 }
 
 function recordRunTime(data, time, alias, unitOfTime) {
