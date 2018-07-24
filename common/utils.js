@@ -26,7 +26,7 @@ function getDataSet(data, callback) {
       createdDate: 1,
       propensityToBuy: 1
     })
-    .limit(100000)
+    .limit(20000)
     .toArray((err, results) => {
       data.dataSet = results;
       return callback(err, data);
