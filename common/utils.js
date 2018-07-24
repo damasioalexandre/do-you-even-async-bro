@@ -1,9 +1,9 @@
 'use strict';
 const moment = require('moment');
-const async = require('async');
 const MongoClient = require('mongodb');
-const _ = require('lodash');
 const connectionString = 'mongodb://localhost:27017/money-machine';
+const _ = require('lodash');
+
 function connect(data, callback) {
   MongoClient.connect(
     connectionString,
@@ -26,22 +26,27 @@ function getDataSet(data, callback) {
       createdDate: 1,
       propensityToBuy: 1
     })
-    .limit(100000)
+    .limit(10000)
     .toArray((err, results) => {
       data.dataSet = results;
       return callback(err, data);
     });
 }
 
-function getRunDuration(startTime, unitOfTime = 'ms') {
-  return moment().diff(startTime, unitOfTime);
-}
+function doWork(statusFlowLog) {
+  statusFlowLog.customerName = 'Alex';
+  statusFlowLog.createdDate = moment()
+    .add(2, 'hours')
+    .add(2, 'hours')
+    .add(2, 'hours')
+    .subtract(2, 'hours')
+    .subtract(2, 'hours')
+    .subtract(2, 'hours');
+  if (statusFlowLog.customerName === 'Alex') {
+    statusFlowLog.customerName = 'Pew';
+  }
 
-function logRunTimes(data) {
-  async.each(data.runTimes, (runTime, next) => {
-    console.log(`${runTime.alias} ran in ${runTime.executionTime}`);
-    next();
-  });
+  statusFlowLog.math = Math.floor(Math.random() + 0.22) % 9;
 }
 
 function recordRunTime(data, time, alias, unitOfTime) {
@@ -51,6 +56,26 @@ function recordRunTime(data, time, alias, unitOfTime) {
   });
 }
 
+function getRunDuration(startTime, unitOfTime = 'ms') {
+  return moment().diff(startTime, unitOfTime);
+}
+
+function CG(data, callback) {
+  if (!global.gc) {
+    return callback(null, data);
+  }
+  global.gc();
+  setTimeout(() => callback(null, data), 500);
+}
+
+function getAverageRunTimes(data, unitOfTime = 'ms') {
+  const sorted = _.sortBy(data.runTimes, ['executionTime']);
+  const mapped = sorted.map(runTime => {
+    return `${runTime.alias}: ${runTime.executionTime} ${unitOfTime}`;
+  });
+  console.log(mapped);
+}
+
 function kill() {
   setTimeout(() => {
     // eslint-disable-next-line
@@ -58,24 +83,13 @@ function kill() {
   }, 1000);
 }
 
-function getAverageRunTime(data, loopName, callback) {
-  let total = 0;
-  const loopRunTimes = data.runTimes.filter(runTime => {
-    if (runTime.alias === loopName) {
-      total = total + runTime.executionTime;
-      return runTime.executionTime;
-    }
-  });
-  const runTime = total / loopRunTimes.length;
-  return callback(null, runTime);
-}
-
 module.exports = {
   connect,
   getDataSet,
-  logRunTimes,
+  doWork,
   recordRunTime,
-  kill,
-  getAverageRunTime,
-  getRunDuration
+  getRunDuration,
+  CG,
+  getAverageRunTimes,
+  kill
 };

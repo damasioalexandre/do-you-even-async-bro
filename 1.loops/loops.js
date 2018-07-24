@@ -1,63 +1,39 @@
 'use strict';
 
 const moment = require('moment');
-const async = require('async');
+const async = require('neo-async');
 const {
   recordRunTime,
   connect,
   getDataSet,
+  getAverageRunTimes,
   kill,
-  getAverageRunTime,
+  CG,
+  doWork,
   getRunDuration
 } = require('../common/utils');
-const start = moment();
+const _ = require('lodash');
+const R = require('ramda');
 const loopNames = {
   basicForLoop: 'basicForLoop',
   reverseForLoop: 'reverseForLoop',
   cachedLengthForLoop: 'cachedLengthForLoop',
-  asyncEach: 'asyncEach'
+  asyncEach: 'asyncEach',
+  asyncEachLimit: 'asyncEachLimit',
+  lodash: 'lodash',
+  ramdaForEach: 'ramdaForEach'
 };
 const unitOfTime = 'ms';
-const runs = 36;
+const startTime = moment();
 run();
 
 function run() {
   const data = {
     runTimes: []
   };
-  async.waterfall([async.apply(connect, data), getDataSet], err => {
-    if (err) throw err;
-    runLoops(data, workComplete);
-  });
-}
-
-function workComplete(err, data) {
-  if (err) throw err;
-
-  async.parallel(
-    {
-      basicForLoop: async.apply(
-        getAverageRunTime,
-        data,
-        loopNames.basicForLoop
-      ),
-      reverseForLoop: async.apply(
-        getAverageRunTime,
-        data,
-        loopNames.reverseForLoop
-      ),
-      cachedLengthForLoop: async.apply(
-        getAverageRunTime,
-        data,
-        loopNames.cachedLengthForLoop
-      ),
-      asyncEach: async.apply(getAverageRunTime, data, loopNames.asyncEach)
-    },
-    (err, results) => {
-      console.log(results);
-      console.log(`total run time ${getRunDuration(start, unitOfTime)}`);
-      kill();
-    }
+  async.waterfall(
+    [async.apply(connect, data), getDataSet, runLoops],
+    workComplete
   );
 }
 
@@ -65,8 +41,17 @@ function runLoops(data, callback) {
   async.waterfall(
     [
       async.apply(basicForLoop, data),
+      CG,
       reverseForLoop,
+      CG,
       cachedLengthForLoop,
+      CG,
+      ramdaForEach,
+      CG,
+      lodashEach,
+      CG,
+      asyncEachLimit,
+      CG,
       asyncEach
     ],
     callback
@@ -82,7 +67,6 @@ function basicForLoop(data, callback) {
   }
 
   recordRunTime(data, now, loopNames.basicForLoop, unitOfTime);
-
   return callback(null, data);
 }
 
@@ -95,7 +79,6 @@ function reverseForLoop(data, callback) {
   }
 
   recordRunTime(data, now, loopNames.reverseForLoop, unitOfTime);
-
   return callback(null, data);
 }
 
@@ -109,6 +92,26 @@ function cachedLengthForLoop(data, callback) {
   }
 
   recordRunTime(data, now, loopNames.cachedLengthForLoop, unitOfTime);
+
+  return callback(null, data);
+}
+
+function lodashEach(data, callback) {
+  const now = moment();
+  const { dataSet } = data;
+
+  _.each(dataSet, doWork);
+  recordRunTime(data, now, loopNames.lodash, unitOfTime);
+
+  return callback(null, data);
+}
+
+function ramdaForEach(data, callback) {
+  const now = moment();
+  const { dataSet } = data;
+
+  R.forEach(doWork, dataSet);
+  recordRunTime(data, now, loopNames.ramdaForEach, unitOfTime);
 
   return callback(null, data);
 }
@@ -129,18 +132,27 @@ function asyncEach(data, callback) {
   }
 }
 
-function doWork(statusFlowLog) {
-  statusFlowLog.customerName = 'Alex';
-  statusFlowLog.createdDate = moment()
-    .add(2, 'hours')
-    .add(2, 'hours')
-    .add(2, 'hours')
-    .subtract(2, 'hours')
-    .subtract(2, 'hours')
-    .subtract(2, 'hours');
-  if (statusFlowLog.customerName === 'Alex') {
-    statusFlowLog.customerName = 'Pew';
-  }
+function asyncEachLimit(data, callback) {
+  const now = moment();
+  const { dataSet } = data;
 
-  statusFlowLog.math = Math.floor(Math.random() + 0.22) % 9;
+  async.eachLimit(dataSet, 100, processRecord, err => {
+    if (err) return callback(err);
+    recordRunTime(data, now, loopNames.asyncEachLimit, unitOfTime);
+    return callback(null, data);
+  });
+
+  function processRecord(record, next) {
+    doWork(record);
+    next();
+  }
+}
+
+function workComplete(err, data) {
+  if (err) throw err;
+  getAverageRunTimes(data, unitOfTime);
+  console.log(
+    `Total run time: ${getRunDuration(startTime, 'seconds')} seconds`
+  );
+  kill();
 }

@@ -1,6 +1,8 @@
 'use strict';
 
-const inquirer = require('inquirer');
+require('./1.loops/loops');
+
+/*const inquirer = require('inquirer');
 const programs = [
   {
     name: '1. loops',
@@ -21,4 +23,4 @@ inquirer.prompt(menu).then(programChosen);
 function programChosen(answers) {
   const filePath = answers[menu[0].name];
   require(filePath);
-}
+}*/
