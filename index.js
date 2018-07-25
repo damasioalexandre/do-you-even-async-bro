@@ -1,17 +1,18 @@
 'use strict';
 
-// require('./1.loops/loops');
-require('./2.async-loops/async-loops');
-
 const inquirer = require('inquirer');
 const programs = [
   {
-    name: '1. loops',
+    name: '1. Sync loopdy loops',
     value: './1.loops/loops.js'
   },
   {
-    name: '2. Async loops',
+    name: '2. Async loopdy loops',
     value: './2.async-loops/async-loops'
+  },
+  {
+    name: '3. Why even loop bro (stream)',
+    value: './3.streams/stream.js'
   }
 ];
 const menu = [
