@@ -26,7 +26,7 @@ function getDataSet(data, callback) {
       createdDate: 1,
       propensityToBuy: 1
     })
-    .limit(20000)
+    .limit(1000)
     .toArray((err, results) => {
       data.dataSet = results;
       return callback(err, data);
@@ -46,10 +46,10 @@ function doWork(statusFlowLog) {
   statusFlowLog.math = Math.floor(Math.random() + 0.22) % 9;
 }
 
-function recordRunTime(data, time, alias, unitOfTime) {
+function recordRunTime(data, time, alias) {
   data.runTimes.push({
     alias,
-    executionTime: getRunDuration(time, unitOfTime)
+    executionTime: getRunDuration(time, data.unitOfTime)
   });
 }
 
@@ -65,10 +65,10 @@ function CG(data, callback) {
   setTimeout(() => callback(null, data), 500);
 }
 
-function getAverageRunTimes(data, unitOfTime = 'ms') {
+function logAverageRunTimes(data) {
   const sorted = _.sortBy(data.runTimes, ['executionTime']);
   const mapped = sorted.map(runTime => {
-    return `${runTime.alias}: ${runTime.executionTime} ${unitOfTime}`;
+    return `${runTime.alias}: ${runTime.executionTime} ${data.unitOfTime}`;
   });
   console.log(mapped);
 }
@@ -80,13 +80,18 @@ function kill() {
   }, 1000);
 }
 
+function workComplete(err, data) {
+  if (err) throw err;
+  logAverageRunTimes(data);
+  console.log('Total time: ', getRunDuration(data.startTime, data.unitOfTime));
+  kill();
+}
+
 module.exports = {
   connect,
   getDataSet,
   doWork,
   recordRunTime,
-  getRunDuration,
   CG,
-  getAverageRunTimes,
-  kill
+  workComplete
 };

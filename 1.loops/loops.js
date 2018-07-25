@@ -6,11 +6,9 @@ const {
   recordRunTime,
   connect,
   getDataSet,
-  getAverageRunTimes,
-  kill,
   CG,
   doWork,
-  getRunDuration
+  workComplete
 } = require('../common/utils');
 const _ = require('lodash');
 const R = require('ramda');
@@ -23,12 +21,13 @@ const loopNames = {
   ramdaForEach: 'ramdaForEach'
 };
 const unitOfTime = 'ms';
-const startTime = moment();
 run();
 
 function run() {
   const data = {
-    runTimes: []
+    runTimes: [],
+    startTime: moment(),
+    unitOfTime
   };
   async.waterfall(
     [async.apply(connect, data), getDataSet, runLoops],
@@ -63,7 +62,7 @@ function basicForLoop(data, callback) {
     doWork(dataSet[i]);
   }
 
-  recordRunTime(data, now, loopNames.basicForLoop, unitOfTime);
+  recordRunTime(data, now, loopNames.basicForLoop);
   return callback(null, data);
 }
 
@@ -75,7 +74,7 @@ function reverseForLoop(data, callback) {
     doWork(dataSet[i]);
   }
 
-  recordRunTime(data, now, loopNames.reverseForLoop, unitOfTime);
+  recordRunTime(data, now, loopNames.reverseForLoop);
   return callback(null, data);
 }
 
@@ -88,7 +87,7 @@ function cachedLengthForLoop(data, callback) {
     doWork(dataSet[i]);
   }
 
-  recordRunTime(data, now, loopNames.cachedLengthForLoop, unitOfTime);
+  recordRunTime(data, now, loopNames.cachedLengthForLoop);
 
   return callback(null, data);
 }
@@ -98,7 +97,7 @@ function lodashEach(data, callback) {
   const { dataSet } = data;
 
   _.each(dataSet, doWork);
-  recordRunTime(data, now, loopNames.lodash, unitOfTime);
+  recordRunTime(data, now, loopNames.lodash);
 
   return callback(null, data);
 }
@@ -108,7 +107,7 @@ function ramdaForEach(data, callback) {
   const { dataSet } = data;
 
   R.forEach(doWork, dataSet);
-  recordRunTime(data, now, loopNames.ramdaForEach, unitOfTime);
+  recordRunTime(data, now, loopNames.ramdaForEach);
 
   return callback(null, data);
 }
@@ -118,7 +117,7 @@ function asyncEach(data, callback) {
   const { dataSet } = data;
   async.each(dataSet, processRecord, err => {
     if (err) return callback(err);
-    recordRunTime(data, now, loopNames.asyncEach, unitOfTime);
+    recordRunTime(data, now, loopNames.asyncEach);
     return callback(null, data);
   });
 
@@ -126,13 +125,4 @@ function asyncEach(data, callback) {
     doWork(record);
     next();
   }
-}
-
-function workComplete(err, data) {
-  if (err) throw err;
-  getAverageRunTimes(data, unitOfTime);
-  console.log(
-    `Total run time: ${getRunDuration(startTime, 'seconds')} seconds`
-  );
-  kill();
 }

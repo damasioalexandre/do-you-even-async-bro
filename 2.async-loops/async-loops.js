@@ -7,26 +7,21 @@ const {
   doAsyncCallbackWork,
   getAsyncArrayDataSet
 } = require('../common/async-utils');
-const {
-  recordRunTime,
-  connect,
-  getAverageRunTimes,
-  kill,
-  CG,
-  getRunDuration
-} = require('../common/utils');
+const { recordRunTime, connect, CG, workComplete } = require('../common/utils');
 const loopNames = {
   lyingBasicForEachLoop: 'lyingBasicForEachLoop',
   forEachTellingTheTruth: 'forEachTellingTheTruth',
-  asyncEach: 'asyncEach'
+  asyncEach: 'asyncEach',
+  hybridAsyncEach: 'hybridAsyncEach'
 };
 const unitOfTime = 'seconds';
-const startTime = moment();
 run();
 
 function run() {
   const data = {
-    runTimes: []
+    runTimes: [],
+    startTime: moment(),
+    unitOfTime
   };
   async.waterfall(
     [async.apply(connect, data), getAsyncArrayDataSet, runLoops],
@@ -41,7 +36,9 @@ function runLoops(data, callback) {
       CG,
       lyingBasicForEachLoop,
       CG,
-      forEachTellingTheTruth
+      forEachTellingTheTruth,
+      CG,
+      hybridAsyncEach
     ],
     callback
   );
@@ -53,7 +50,7 @@ async function lyingBasicForEachLoop(data, callback) {
   dataSet.forEach(async item => {
     await doAsyncAwaitWork(item, db).catch(callback);
   });
-  recordRunTime(data, now, loopNames.lyingBasicForEachLoop, unitOfTime);
+  recordRunTime(data, now, loopNames.lyingBasicForEachLoop);
   return callback(null, data);
 }
 
@@ -65,7 +62,7 @@ async function forEachTellingTheTruth(data, callback) {
     await doAsyncAwaitWork(item, db).catch(callback);
   }
 
-  recordRunTime(data, now, loopNames.forEachTellingTheTruth, unitOfTime);
+  recordRunTime(data, now, loopNames.forEachTellingTheTruth);
   return callback(null, data);
 }
 
@@ -77,16 +74,26 @@ function asyncEach(data, callback) {
 
   function done(err) {
     if (err) return callback(err);
-    recordRunTime(data, now, loopNames.asyncEach, unitOfTime);
+    recordRunTime(data, now, loopNames.asyncEach);
     return callback(null, data);
   }
 }
 
-function workComplete(err, data) {
-  if (err) throw err;
-  getAverageRunTimes(data, unitOfTime);
-  console.log(
-    `Total run time: ${getRunDuration(startTime, 'seconds')} seconds`
+function hybridAsyncEach(data, callback) {
+  const now = moment();
+  const { dataSet, db } = data;
+
+  async.each(
+    dataSet,
+    async (item, next) => {
+      await doAsyncAwaitWork(item, db);
+      next();
+    },
+    done
   );
-  kill();
+  function done(err) {
+    if (err) return callback(err);
+    recordRunTime(data, now, loopNames.hybridAsyncEach);
+    return callback(null, data);
+  }
 }
