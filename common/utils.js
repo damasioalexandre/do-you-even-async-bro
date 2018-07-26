@@ -72,7 +72,9 @@ function logAverageRunTimes(data) {
   console.log('** RUN TIME STATS **');
   sorted.map(runTime => {
     console.log(
-      `${count++}. ${runTime.alias}: ${runTime.executionTime} ${data.unitOfTime}`
+      `${count++}. ${runTime.alias}: ${runTime.executionTime} ${
+        data.unitOfTime
+      }`
     );
   });
 
