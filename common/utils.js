@@ -68,10 +68,19 @@ function CG(data, callback) {
 
 function logAverageRunTimes(data) {
   const sorted = _.sortBy(data.runTimes, ['executionTime']);
-  const mapped = sorted.map(runTime => {
-    return `${runTime.alias}: ${runTime.executionTime} ${data.unitOfTime}`;
+  let count = 1;
+  console.log('** RUN TIME STATS **');
+  sorted.map(runTime => {
+    console.log(
+      `${count++}. ${runTime.alias}: ${runTime.executionTime} ${data.unitOfTime}`
+    );
   });
-  console.log(mapped);
+
+  console.log(
+    `Total time: ${getRunDuration(data.startTime, data.unitOfTime)} ${
+      data.unitOfTime
+    } \n`
+  );
 }
 
 function kill() {
@@ -85,7 +94,6 @@ function workComplete(err, data) {
   if (err) throw err;
   logAverageRunTimes(data);
   logMemoryStats();
-  console.log(`Total time: ${getRunDuration(data.startTime, data.unitOfTime)} ${data.unitOfTime}`);
   kill();
 }
 

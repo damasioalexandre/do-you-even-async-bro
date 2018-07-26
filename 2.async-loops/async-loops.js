@@ -50,10 +50,16 @@ async function lyingBasicForEachLoop(data, callback) {
   setCurrentTask(loopNames.lyingBasicForEachLoop);
   const { dataSet, db } = data;
   const now = moment();
-  dataSet.forEach(async item => {
-    await doAsyncAwaitWork(item, db).catch(callback);
-  });
+  try {
+    dataSet.forEach(async item => {
+      await doAsyncAwaitWork(item, db);
+    });
+  } catch (err) {
+    return callback(err);
+  }
+
   recordRunTime(data, now, loopNames.lyingBasicForEachLoop);
+
   return callback(null, data);
 }
 
@@ -63,7 +69,11 @@ async function forEachTellingTheTruth(data, callback) {
   const now = moment();
 
   for (const item of dataSet) {
-    await doAsyncAwaitWork(item, db).catch(callback);
+    try {
+      await doAsyncAwaitWork(item, db);
+    } catch (err) {
+      return callback(err);
+    }
   }
 
   recordRunTime(data, now, loopNames.forEachTellingTheTruth);
@@ -75,13 +85,11 @@ function asyncEach(data, callback) {
   const now = moment();
   const { dataSet, db } = data;
 
-  async.each(dataSet, async.apply(doAsyncCallbackWork, db), done);
-
-  function done(err) {
+  async.each(dataSet, async.apply(doAsyncCallbackWork, db), err => {
     if (err) return callback(err);
     recordRunTime(data, now, loopNames.asyncEach);
     return callback(null, data);
-  }
+  });
 }
 
 function hybridAsyncEach(data, callback) {
@@ -92,14 +100,17 @@ function hybridAsyncEach(data, callback) {
   async.each(
     dataSet,
     async (item, next) => {
-      await doAsyncAwaitWork(item, db);
-      next();
+      try {
+        await doAsyncAwaitWork(item, db);
+        next();
+      } catch (err) {
+        next(err);
+      }
     },
-    done
+    err => {
+      if (err) return callback(err);
+      recordRunTime(data, now, loopNames.hybridAsyncEach);
+      return callback(null, data);
+    }
   );
-  function done(err) {
-    if (err) return callback(err);
-    recordRunTime(data, now, loopNames.hybridAsyncEach);
-    return callback(null, data);
-  }
 }

@@ -24,13 +24,13 @@ memwatch.on('stats', stats => {
 
 function logMemoryStats() {
   const mapped = [];
+  let count = 1;
+  console.log('** MEMORY USAGE STATS **');
   _.each(state.memoryStats, (value, key) => {
     mapped.push({ alias: key, max: value.max });
   });
-
-  console.log('Memory Stats:');
   _.each(_.sortBy(mapped, ['max']), stat =>
-    console.log(`${stat.alias}: ${stat.max} MB`)
+    console.log(`${count++}. ${stat.alias}: ${stat.max} MB`)
   );
 }
 

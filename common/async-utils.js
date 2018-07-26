@@ -11,7 +11,7 @@ function getAsyncArrayDataSet(data, callback) {
       createdDate: 1,
       propensityToBuy: 1
     })
-    .limit(10000)
+    .limit(20000)
     .toArray((err, results) => {
       data.dataSet = results;
       return callback(err, data);

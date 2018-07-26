@@ -19,7 +19,7 @@ function run() {
     runTimes: [],
     startTime: moment(),
     unitOfTime: 'seconds',
-    limit: 10000
+    limit: 20000
   };
   async.waterfall(
     [
