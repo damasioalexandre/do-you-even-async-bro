@@ -30,7 +30,7 @@ function logMemoryStats() {
 
   console.log('Memory Stats:');
   _.each(_.sortBy(mapped, ['max']), stat =>
-    console.log(`${stat.alias} ${stat.max} MB`)
+    console.log(`${stat.alias}: ${stat.max} MB`)
   );
 }
 

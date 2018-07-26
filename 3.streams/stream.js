@@ -10,6 +10,8 @@ const streamNames = {
   stream: 'stream',
   batchedStream: 'batchedStream'
 };
+const { setCurrentTask } = require('../common/memory-utils');
+
 run();
 
 function run() {
@@ -17,7 +19,7 @@ function run() {
     runTimes: [],
     startTime: moment(),
     unitOfTime: 'seconds',
-    limit: 20000
+    limit: 10000
   };
   async.waterfall(
     [
@@ -33,6 +35,7 @@ function run() {
 }
 
 function runStream(data, callback) {
+  setCurrentTask(streamNames.stream);
   const { cursor, db, limit } = data;
   const now = moment();
   let count = 1;
@@ -52,6 +55,7 @@ function runStream(data, callback) {
 }
 
 function runBatchedStream(data, callback) {
+  setCurrentTask(streamNames.batchedStream);
   const { cursor, db, limit } = data;
   const now = moment();
   let count = 1;
