@@ -3,6 +3,7 @@ const moment = require('moment');
 const MongoClient = require('mongodb');
 const connectionString = 'mongodb://localhost:27017/money-machine';
 const _ = require('lodash');
+const { logMemoryStats } = require('./memory-utils');
 
 function connect(data, callback) {
   MongoClient.connect(
@@ -83,7 +84,8 @@ function kill() {
 function workComplete(err, data) {
   if (err) throw err;
   logAverageRunTimes(data);
-  console.log('Total time: ', getRunDuration(data.startTime, data.unitOfTime));
+  logMemoryStats();
+  console.log(`Total time: ${getRunDuration(data.startTime, data.unitOfTime)} ${data.unitOfTime}`);
   kill();
 }
 

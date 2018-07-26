@@ -14,7 +14,7 @@ const loopNames = {
   asyncEach: 'asyncEach',
   hybridAsyncEach: 'hybridAsyncEach'
 };
-
+const { setCurrentTask } = require('../common/memory-utils');
 run();
 
 function run() {
@@ -38,13 +38,15 @@ function runLoops(data, callback) {
       CG,
       forEachTellingTheTruth,
       CG,
-      hybridAsyncEach
+      hybridAsyncEach,
+      CG
     ],
     callback
   );
 }
 
 async function lyingBasicForEachLoop(data, callback) {
+  setCurrentTask(loopNames.lyingBasicForEachLoop);
   const { dataSet, db } = data;
   const now = moment();
   dataSet.forEach(async item => {
@@ -55,6 +57,7 @@ async function lyingBasicForEachLoop(data, callback) {
 }
 
 async function forEachTellingTheTruth(data, callback) {
+  setCurrentTask(loopNames.forEachTellingTheTruth);
   const { dataSet, db } = data;
   const now = moment();
 
@@ -67,6 +70,7 @@ async function forEachTellingTheTruth(data, callback) {
 }
 
 function asyncEach(data, callback) {
+  setCurrentTask(loopNames.asyncEach);
   const now = moment();
   const { dataSet, db } = data;
 
@@ -80,6 +84,7 @@ function asyncEach(data, callback) {
 }
 
 function hybridAsyncEach(data, callback) {
+  setCurrentTask(loopNames.hybridAsyncEach);
   const now = moment();
   const { dataSet, db } = data;
 
