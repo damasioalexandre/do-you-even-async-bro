@@ -20,14 +20,13 @@ const loopNames = {
   lodash: 'lodash',
   ramdaForEach: 'ramdaForEach'
 };
-const unitOfTime = 'ms';
 run();
 
 function run() {
   const data = {
     runTimes: [],
     startTime: moment(),
-    unitOfTime
+    unitOfTime: 'ms'
   };
   async.waterfall(
     [async.apply(connect, data), getDataSet, runLoops],

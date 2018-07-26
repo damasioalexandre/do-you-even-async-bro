@@ -14,14 +14,14 @@ const loopNames = {
   asyncEach: 'asyncEach',
   hybridAsyncEach: 'hybridAsyncEach'
 };
-const unitOfTime = 'seconds';
+
 run();
 
 function run() {
   const data = {
     runTimes: [],
     startTime: moment(),
-    unitOfTime
+    unitOfTime: 'seconds'
   };
   async.waterfall(
     [async.apply(connect, data), getAsyncArrayDataSet, runLoops],
