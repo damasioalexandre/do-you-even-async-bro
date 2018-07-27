@@ -27,7 +27,7 @@ function getDataSet(data, callback) {
       createdDate: 1,
       propensityToBuy: 1
     })
-    .limit(1000)
+    .limit(10000)
     .toArray((err, results) => {
       data.dataSet = results;
       return callback(err, data);
@@ -70,14 +70,35 @@ function logAverageRunTimes(data) {
   const sorted = _.sortBy(data.runTimes, ['executionTime']);
   let count = 1;
   console.log('** RUN TIME STATS **');
-  sorted.map(runTime => {
+  sorted.map((runTime, index) => {
+    /*const next = sorted[++index];
+    let percentageImprovement = '';
+
+    if (next) {
+      percentageImprovement = `- ${calculatePercentageDifference(
+        next.executionTime,
+        runTime.executionTime
+      )}% faster`;
+    }*/
+
     console.log(
       `${count++}. ${runTime.alias}: ${runTime.executionTime} ${
         data.unitOfTime
       }`
     );
   });
+  const slowest = sorted.pop();
+  const fastest = sorted[0];
+  const fastestVsSlowest = calculatePercentageDifference(
+    slowest.executionTime,
+    fastest.executionTime
+  );
+  console.log(
+    `${fastest.alias} is ${fastestVsSlowest}% faster than ${slowest.alias} \n`
+  );
+}
 
+function logTotalRunTime(data) {
   console.log(
     `Total time: ${getRunDuration(data.startTime, data.unitOfTime)} ${
       data.unitOfTime
@@ -85,18 +106,24 @@ function logAverageRunTimes(data) {
   );
 }
 
-function kill() {
-  setTimeout(() => {
-    // eslint-disable-next-line
-    process.exit(1);
-  }, 1000);
+function calculatePercentageDifference(x, y) {
+  return Math.round(((x - y) / y) * 100);
 }
 
 function workComplete(err, data) {
   if (err) throw err;
   logAverageRunTimes(data);
+  // logTotalRunTime(data);
   logMemoryStats();
+
   kill();
+}
+
+function kill() {
+  setTimeout(() => {
+    // eslint-disable-next-line
+    process.exit(1);
+  }, 1000);
 }
 
 module.exports = {

@@ -23,6 +23,10 @@ memwatch.on('stats', stats => {
 });
 
 function logMemoryStats() {
+  if (Object.keys(state.memoryStats).length === 0) {
+    return;
+  }
+
   const mapped = [];
   let count = 1;
   console.log('** MEMORY USAGE STATS **');
