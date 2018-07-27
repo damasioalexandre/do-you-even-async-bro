@@ -89,13 +89,15 @@ function logAverageRunTimes(data) {
   });
   const slowest = sorted.pop();
   const fastest = sorted[0];
-  const fastestVsSlowest = calculatePercentageDifference(
-    slowest.executionTime,
-    fastest.executionTime
-  );
-  console.log(
-    `${fastest.alias} is ${fastestVsSlowest}% faster than ${slowest.alias} \n`
-  );
+  if (fastest) {
+    const fastestVsSlowest = calculatePercentageDifference(
+      slowest.executionTime,
+      fastest.executionTime
+    );
+    console.log(
+      `${fastest.alias} is ${fastestVsSlowest}% faster than ${slowest.alias} \n`
+    );
+  }
 }
 
 function logTotalRunTime(data) {

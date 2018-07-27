@@ -12,6 +12,7 @@
     "start": "nodemon --expose-gc ./index.js"
   },
   "dependencies": {
+    "csv-parse": "^2.5.0",
     "inquirer": "6.0.0",
     "lodash": "4.17.10",
     "memwatch-next": "^0.3.0",

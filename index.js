@@ -11,8 +11,12 @@ const programs = [
     value: './2.async-loops/async-loops'
   },
   {
-    name: '3. Why even loop bro (stream)',
+    name: '3. Why even loop bro',
     value: './3.streams/stream.js'
+  },
+  {
+    name: '4. Stream power!',
+    value: './4.stream-power/stream-power.js'
   }
 ];
 const menu = [
