@@ -5,8 +5,8 @@ This is a basic NodeJS application created to compare the performance of various
 Currently this repository compares the peformance of loops and streams. The intent is to highlight the performance that can be achieved if you follow the intended NodeJS coding style of event driven scalable I/O operations.
 
 ## Requirements
-1. Node >= v 7.6.0
-2. NPM >= V 6.1.0
+1. Node >= v7.6.0
+2. NPM >= v6.1.0
 
 ## Setup 
 1. run `npm i` on the root of the project.
