@@ -71,33 +71,34 @@ function logAverageRunTimes(data) {
   let count = 1;
   console.log('** RUN TIME STATS **');
   sorted.map((runTime, index) => {
-    /*const next = sorted[++index];
+    const next = sorted[++index];
     let percentageImprovement = '';
 
     if (next) {
       percentageImprovement = `- ${calculatePercentageDifference(
         next.executionTime,
         runTime.executionTime
-      )}% faster`;
-    }*/
+      )}% faster than ${next.alias}`;
+    }
 
     console.log(
       `${count++}. ${runTime.alias}: ${runTime.executionTime} ${
         data.unitOfTime
-      }`
+      } \n ${percentageImprovement} \n`
     );
   });
   const slowest = sorted.pop();
   const fastest = sorted[0];
-  if (fastest) {
-    const fastestVsSlowest = calculatePercentageDifference(
-      slowest.executionTime,
-      fastest.executionTime
-    );
-    console.log(
-      `${fastest.alias} is ${fastestVsSlowest}% faster than ${slowest.alias} \n`
-    );
-  }
+  
+  if (!fastest) return;
+  
+  const fastestVsSlowest = calculatePercentageDifference(
+    slowest.executionTime,
+    fastest.executionTime
+  );
+  console.log(
+    `${fastest.alias} is ${fastestVsSlowest}% faster than ${slowest.alias} \n`
+  );
 }
 
 function logTotalRunTime(data) {
